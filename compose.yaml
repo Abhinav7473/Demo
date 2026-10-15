@@ -13,8 +13,9 @@ services:
       timeout: 3s
       retries: 15
 
-  backend:
-    build: ./backend
+  # Single image: Node stage builds the frontend, Python stage runs FastAPI and serves it.
+  app:
+    build: .
     environment:
       DATABASE_URL: postgresql+psycopg://demo:demo@db:5432/demo
     depends_on:
@@ -22,33 +23,28 @@ services:
         condition: service_healthy
     develop:
       watch:
+        # Backend code: live-sync, uvicorn --reload picks it up
         - action: sync
           path: ./backend
           target: /app
           ignore:
             - __pycache__/
+            - requirements.txt
         - action: rebuild
           path: ./backend/requirements.txt
-
-  frontend:
-    build: ./frontend
-    develop:
-      watch:
-        - action: sync
+        # Frontend code: rebuild the image (re-runs the Node build stage)
+        - action: rebuild
           path: ./frontend
-          target: /app
           ignore:
             - node_modules/
-        - action: rebuild
-          path: ./frontend/package.json
+            - dist/
 
   nginx:
     build: ./nginx
     ports:
-      - "8080:80"
+      - "8089:80"
     depends_on:
-      - backend
-      - frontend
+      - app
     develop:
       watch:
         - action: sync+restart
