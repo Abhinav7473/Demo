@@ -1,5 +1,7 @@
 # AI Workflow Habits Demo
 
+An information system for Nielsen's usability heuristics and Wickens' display-design principles.
+
 FastAPI + Alembic + Postgres backend and a TypeScript/Vite frontend, built into one multi-stage image, behind an nginx proxy, run with Docker Compose watch.
 
 ```bash

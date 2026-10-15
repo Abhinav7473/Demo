@@ -7,7 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.db import get_db
-from app.models import Habit
+from app.models import Habit, Principle
 
 STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
 
@@ -21,6 +21,16 @@ class HabitIn(BaseModel):
 
 class HabitOut(HabitIn):
     id: int
+
+
+class PrincipleOut(BaseModel):
+    id: int
+    code: str
+    source: str
+    category: str
+    title: str
+    summary: str
+    example: str
 
 
 @api.get("/health")
@@ -40,6 +50,17 @@ def create_habit(body: HabitIn, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(habit)
     return habit
+
+
+@api.get("/principles", response_model=list[PrincipleOut])
+def list_principles(source: str | None = None, q: str | None = None, db: Session = Depends(get_db)):
+    stmt = select(Principle).order_by(Principle.id)
+    if source:
+        stmt = stmt.where(Principle.source == source)
+    if q:
+        like = f"%{q}%"
+        stmt = stmt.where(Principle.title.ilike(like) | Principle.summary.ilike(like) | Principle.example.ilike(like))
+    return db.scalars(stmt).all()
 
 
 app.include_router(api)

@@ -2,9 +2,11 @@
 
 Demo project showing good AI-assisted dev habits: memory files, skills, small verified steps.
 
+The app is an information system for Nielsen's 10 usability heuristics and Wickens' 13 principles of display design (`GET /api/principles?source=nielsen|wickens&q=`), seeded by migration `0002`.
+
 ## Stack
 - **backend/** — Python 3.13, FastAPI, SQLAlchemy 2, Alembic, Postgres 17
-- **frontend/** — TypeScript + Vite (vanilla, no framework)
+- **frontend/** — TypeScript + Vite (vanilla, no framework) + Tailwind CSS v4 (`@tailwindcss/vite`); beige accent scale `beige-50…900` defined in `src/style.css` `@theme`
 - **Dockerfile** (root) — one multi-stage image: Node stage builds `frontend/` → copied into the Python stage at `/app/static`, served by FastAPI
 - **nginx/** — reverse proxy on http://localhost:8089 → `app:8000`
 - **compose.yaml** — `db`, `app`, `nginx`, with `develop.watch`: backend edits live-sync (uvicorn `--reload`); frontend edits rebuild the image
